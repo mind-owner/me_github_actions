@@ -3,7 +3,7 @@ name: Scheduled Script Execution
 
 # 触发条件：使用 cron 表达式定义定时执行
 # 示例：每天凌晨 1 点执行（UTC 时间）
-trigger:
+on:
   schedule:
     - cron: '0 1 * * *'
   # 也支持手动触发

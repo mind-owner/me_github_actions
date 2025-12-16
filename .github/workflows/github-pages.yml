@@ -2,7 +2,7 @@
 name: Deploy GitHub Pages
 
 # 触发条件：推送到 main 分支时触发
-trigger:
+on:
   push:
     branches:
       - main

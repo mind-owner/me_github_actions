@@ -2,7 +2,7 @@
 name: Auto Release
 
 # 触发条件：当 push 到 main 分支且包含版本标签时
-trigger:  
+on:  
   push:
     tags:
       - 'v*.*.*'
