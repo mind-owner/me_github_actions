@@ -1,11 +1,11 @@
 # 自动发布 GitHub Pages 工作流
 name: Deploy GitHub Pages
 
-# 触发条件：推送到 main 分支时触发
+# 触发条件：推送到 master 分支时触发
 on:
   push:
     branches:
-      - main
+      - master
 
 # 任务列表
 jobs:
