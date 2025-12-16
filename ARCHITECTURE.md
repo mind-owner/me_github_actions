@@ -201,7 +201,7 @@ me_github_actions/
 #### 前端部署（GitHub Pages）
 - 部署到 GitHub Pages，URL：https://mind-owner.github.io/me_github_actions/
 - Vite 配置中的 `base` 路径设置为 `/me_github_actions/`，确保资源正确加载
-- 使用 GitHub Actions 自动部署，当代码推送到 `main` 分支时触发
+- 使用 GitHub Actions 自动部署，当代码推送到 `master` 分支时触发
 
 #### 后端部署
 - 后端部署到 Heroku 或 AWS
@@ -221,7 +221,7 @@ me_github_actions/
 
 ### 10.1 分支策略
 
-- main：主分支，用于发布生产版本
+- master：主分支，用于发布生产版本
 - develop：开发分支，用于集成新功能
 - feature/*：功能分支，用于开发新功能
 - hotfix/*：修复分支，用于修复生产环境问题

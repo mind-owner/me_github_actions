@@ -45,7 +45,7 @@ const ExamplesGrid: React.FC<ExamplesGridProps> = ({ examples }) => {
           
           <div className="example-actions">
             <a 
-              href={`https://github.com/mind-owner/me_github_actions/blob/main/${example.filePath}`}
+              href={`https://github.com/mind-owner/me_github_actions/blob/master/${example.filePath}`}
               target="_blank"
               rel="noopener noreferrer"
               className="view-code-btn"

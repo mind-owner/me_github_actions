@@ -1,5 +1,19 @@
 # GitHub Pages 配置指南
 
+## 关于GitHub Pages
+
+GitHub Pages支持两种模式：
+
+1. **用户/组织页面**：
+   - 仓库名称：`<user>.github.io`
+   - 访问URL：`https://<user>.github.io/`
+
+2. **项目页面**：
+   - 仓库名称：任意名称（如 `me_github_actions`）
+   - 访问URL：`https://<user>.github.io/<repo>/`
+
+**您的情况**：仓库 `me_github_actions` 属于项目页面模式，设置完成后可通过 `https://mind-owner.github.io/me_github_actions/` 访问。
+
 ## 步骤1：登录GitHub并进入仓库
 1. 访问 https://github.com 并使用您的账号登录
 2. 进入仓库页面：https://github.com/mind-owner/me_github_actions
