@@ -1,0 +1,58 @@
+# GitHub Pages 部署工作流示例
+
+# 工作流名称
+name: Deploy to GitHub Pages
+
+# 触发条件：当代码推送到 main 分支时
+on:
+  push:
+    branches: [ main ]
+
+# 定义作业
+jobs:
+  # 部署作业
+  deploy:
+    # 运行环境：最新版本的 Ubuntu
+    runs-on: ubuntu-latest
+
+    # 权限设置：需要写入仓库内容的权限
+    permissions:
+      contents: write
+
+    # 作业步骤
+    steps:
+    # 1. 检出仓库代码
+    - uses: actions/checkout@v3
+
+    # 2. 设置 Node.js 环境（如果是 Node.js 项目）
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16'
+        cache: 'npm'
+
+    # 3. 安装依赖
+    - name: Install dependencies
+      run: npm ci
+
+    # 4. 构建项目
+    - name: Build
+      run: npm run build
+
+    # 5. 部署到 GitHub Pages
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        # 使用 GitHub 提供的令牌
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        # 构建输出目录
+        publish_dir: ./dist
+        # 可选：自定义提交消息
+        commit_message: 'deploy: ${{ github.event.head_commit.message }}'
+
+# 注意事项：
+# 1. 确保您的仓库已经启用了 GitHub Pages
+# 2. 根据项目类型调整构建步骤（如使用 npm、yarn、pnpm 或其他构建工具）
+# 3. 修改 publish_dir 为您的项目构建输出目录
+# 4. 如果需要部署到特定分支（如 gh-pages），可以通过 branch 参数指定
+# 5. 对于非 Node.js 项目，删除 Node.js 相关步骤，添加您项目需要的构建步骤

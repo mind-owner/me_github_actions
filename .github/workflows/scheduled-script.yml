@@ -1,0 +1,79 @@
+# 定时触发脚本执行工作流
+name: Scheduled Script Execution
+
+# 触发条件：使用 cron 表达式定义定时执行
+# 示例：每天凌晨 1 点执行（UTC 时间）
+trigger:
+  schedule:
+    - cron: '0 1 * * *'
+  # 也支持手动触发
+  workflow_dispatch:
+
+# 任务列表
+jobs:
+  # 执行脚本任务
+  run-script:
+    # 使用 Ubuntu 最新版本运行器
+    runs-on: ubuntu-latest
+    
+    # 步骤定义
+    steps:
+      # 步骤 1：检出代码
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      # 步骤 2：设置 Python 环境（如果脚本是 Python 编写）
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      
+      # 步骤 3：安装脚本依赖（如果需要）
+      - name: Install script dependencies
+        run: |
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          fi
+      
+      # 步骤 4：执行脚本
+      - name: Run scheduled script
+        run: |
+          # 执行示例脚本（根据实际情况修改）
+          python scripts/scheduled_task.py
+        # 可以设置超时时间
+        timeout-minutes: 10
+      
+      # 步骤 5：将脚本输出保存为 Artifact（可选）
+      - name: Upload script output
+        uses: actions/upload-artifact@v4
+        with:
+          name: script-output
+          path: script_output.txt
+      
+      # 步骤 6：发送执行结果通知（可选）
+      - name: Send notification
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const output = fs.existsSync('script_output.txt') ? fs.readFileSync('script_output.txt', 'utf8') : 'No output';
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue?.number || 1, // 如果没有 issue 关联，使用默认 issue
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `定时脚本执行结果：\n\n\`\`\`\n${output}\n\`\`\``
+            });
+      
+      # 步骤 7：错误处理（可选）
+      - name: Handle failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue?.number || 1,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '定时脚本执行失败！请检查工作流日志。'
+            });

@@ -1,0 +1,44 @@
+# Slack 通知工作流示例
+
+# 工作流名称
+name: Slack Notification
+
+# 触发条件：当代码推送到 main 分支或创建拉取请求时
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+# 定义作业
+jobs:
+  # 通知作业
+  notify:
+    # 运行环境：最新版本的 Ubuntu
+    runs-on: ubuntu-latest
+
+    # 作业步骤
+    steps:
+    # 1. 检出仓库代码
+    - uses: actions/checkout@v3
+
+    # 2. 发送 Slack 通知
+    - name: Send Slack notification
+      uses: 8398a7/action-slack@v3
+      with:
+        # 通知内容模板
+        status: ${{ job.status }}
+        fields: repo,message,commit,author,action,eventName,ref,workflow,job,took
+      env:
+        # Slack Webhook URL（需要在仓库 secrets 中配置）
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      # 即使前面的步骤失败，也要发送通知
+      if: always()
+
+# 注意事项：
+# 1. 您需要在 Slack 中创建一个 incoming webhook，并在仓库 secrets 中配置 SLACK_WEBHOOK_URL
+# 2. 可以自定义通知内容和格式
+# 3. if: always() 确保无论作业成功还是失败都会发送通知
+# 4. 可以添加更多条件来控制何时发送通知
+# 5. 可以使用不同的 Slack Actions，如 slackapi/slack-github-action

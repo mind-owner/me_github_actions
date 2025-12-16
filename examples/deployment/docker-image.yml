@@ -1,0 +1,63 @@
+# Docker 镜像构建和推送工作流示例
+
+# 工作流名称
+name: Build and Push Docker Image
+
+# 触发条件：当代码推送到 main 分支或创建标签时
+on:
+  push:
+    branches: [ main ]
+    tags: [ 'v*.*.*' ]
+
+# 定义作业
+jobs:
+  # 构建和推送作业
+  build-and-push:
+    # 运行环境：最新版本的 Ubuntu
+    runs-on: ubuntu-latest
+
+    # 权限设置：需要读取仓库内容和写入包的权限
+    permissions:
+      contents: read
+      packages: write
+
+    # 作业步骤
+    steps:
+    # 1. 检出仓库代码
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    # 2. 登录到 GitHub Container Registry
+    - name: Log in to GitHub Container Registry
+      uses: docker/login-action@v2
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    # 3. 提取 Docker 镜像的元数据（标签、标签）
+    - name: Extract metadata (tags, labels) for Docker
+      id: meta
+      uses: docker/metadata-action@v4
+      with:
+        images: ghcr.io/${{ github.repository }}
+
+    # 4. 构建并推送 Docker 镜像
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v4
+      with:
+        # 构建上下文
+        context: .
+        # 启用推送
+        push: true
+        # 使用元数据步骤生成的标签
+        tags: ${{ steps.meta.outputs.tags }}
+        # 使用元数据步骤生成的标签
+        labels: ${{ steps.meta.outputs.labels }}
+
+# 注意事项：
+# 1. 确保项目根目录有 Dockerfile 文件
+# 2. 您的仓库需要启用 GitHub Packages
+# 3. 如果需要推送到 Docker Hub，修改 registry、username 和 password
+# 4. 可以通过 context 参数指定 Dockerfile 的位置（如 ./path/to/Dockerfile）
+# 5. 标签格式可以通过 meta 步骤的配置自定义

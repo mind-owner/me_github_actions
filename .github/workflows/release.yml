@@ -1,0 +1,63 @@
+# GitHub Actions 自动发布 Release 工作流
+name: Auto Release
+
+# 触发条件：当 push 到 main 分支且包含版本标签时
+trigger:  
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  release:
+    # 运行环境
+    runs-on: ubuntu-latest
+    
+    steps:
+      # 检出代码
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # 获取完整的 git 历史，包括所有标签
+      
+      # 设置 Node.js 环境
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      
+      # 安装依赖
+      - name: Install dependencies
+        run: npm install
+        working-directory: ./frontend
+      
+      # 构建前端项目
+      - name: Build frontend
+        run: npm run build
+        working-directory: ./frontend
+      
+      # 创建 Release
+      - name: Create Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body: |
+            自动生成的 Release
+            - 版本：${{ github.ref }}
+            - 提交：${{ github.sha }}
+            - 发布时间：${{ github.event.head_commit.timestamp }}
+          draft: false
+          prerelease: false
+      
+      # 上传构建产物到 Release
+      - name: Upload Build Artifacts
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./frontend/dist.zip
+          asset_name: github-actions-project-${{ github.ref_name }}.zip
+          asset_content_type: application/zip

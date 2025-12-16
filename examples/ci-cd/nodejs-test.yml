@@ -1,0 +1,64 @@
+# Node.js CI/CD 工作流示例
+
+# 工作流名称
+name: Node.js CI
+
+# 触发条件：当代码推送到 main 分支或创建针对 main 分支的拉取请求时
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+# 定义作业
+jobs:
+  # 构建作业
+  build:
+    # 运行环境：最新版本的 Ubuntu
+    runs-on: ubuntu-latest
+
+    # 矩阵构建：测试多个 Node.js 版本
+    strategy:
+      matrix:
+        node-version: [14.x, 16.x, 18.x, 20.x]
+
+    # 作业步骤
+    steps:
+    # 1. 检出仓库代码
+    - uses: actions/checkout@v3
+
+    # 2. 设置 Node.js 环境
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        # 启用 npm 缓存，加速依赖安装
+        cache: 'npm'
+
+    # 3. 安装依赖
+    - name: Install dependencies
+      run: npm ci
+
+    # 4. 构建项目（如果有构建脚本）
+    - name: Build
+      run: npm run build --if-present
+
+    # 5. 运行测试
+    - name: Run tests
+      run: npm test
+
+    # 6. 代码质量检查（可选）
+    - name: Code quality check
+      run: npm run lint
+
+    # 7. 上传测试覆盖率报告（可选）
+    - name: Upload coverage report
+      uses: codecov/codecov-action@v3
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+
+# 注意事项：
+# 1. 确保项目根目录有 package.json 文件
+# 2. 根据项目需求调整 Node.js 版本矩阵
+# 3. 如果不需要某些步骤（如 lint 或 coverage），可以删除
+# 4. 如需上传测试覆盖率，需要在 Codecov 注册并获取令牌

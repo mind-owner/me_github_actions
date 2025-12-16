@@ -1,0 +1,59 @@
+# 代码质量检查工作流示例
+
+# 工作流名称
+name: Code Quality Check
+
+# 触发条件：当代码推送到 main 分支或创建拉取请求时
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+# 定义作业
+jobs:
+  # 代码质量检查作业
+  code-quality:
+    # 运行环境：最新版本的 Ubuntu
+    runs-on: ubuntu-latest
+
+    # 作业步骤
+    steps:
+    # 1. 检出仓库代码
+    - uses: actions/checkout@v3
+
+    # 2. 设置 Node.js 环境（如果是 Node.js 项目）
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16'
+        cache: 'npm'
+
+    # 3. 安装依赖
+    - name: Install dependencies
+      run: npm ci
+
+    # 4. 运行 ESLint 检查代码质量
+    - name: Run ESLint
+      run: npm run lint
+
+    # 5. 运行 Prettier 检查代码格式
+    - name: Run Prettier
+      run: npm run format:check
+
+    # 6. 可选：运行其他代码质量工具
+    # - name: Run TypeScript check
+    #   run: npm run typecheck
+    # 
+    # - name: Run SonarCloud scan
+    #   uses: SonarSource/sonarcloud-github-action@master
+    #   env:
+    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+# 注意事项：
+# 1. 确保您的项目已经配置了 ESLint 和 Prettier
+# 2. 根据项目类型调整环境设置（Node.js、Python、Java 等）
+# 3. 添加适合您项目的代码质量工具
+# 4. 对于拉取请求，可以使用 reviewdog 等工具在 PR 中显示检查结果
+# 5. 可以配置为仅在特定文件变更时运行，减少不必要的检查

@@ -1,0 +1,47 @@
+# 定时任务工作流示例
+
+# 工作流名称
+name: Scheduled Task
+
+# 触发条件：定时执行（每天午夜 UTC 时间）
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  # 允许手动触发工作流
+  workflow_dispatch:
+
+# 定义作业
+jobs:
+  # 定时作业
+  scheduled:
+    # 运行环境：最新版本的 Ubuntu
+    runs-on: ubuntu-latest
+
+    # 作业步骤
+    steps:
+    # 1. 检出仓库代码
+    - uses: actions/checkout@v3
+
+    # 2. 设置 Python 环境（如果需要）
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    # 3. 安装依赖（如果需要）
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install requests
+
+    # 4. 运行定时任务脚本
+    - name: Run scheduled script
+      run: |
+        python scripts/scheduled_task.py
+
+# 注意事项：
+# 1. 定时表达式格式：分钟 小时 日期 月份 星期几
+# 2. 时区默认为 UTC，可以通过环境变量调整
+# 3. 确保脚本具有执行权限
+# 4. 如果需要，可以添加通知步骤，在任务完成或失败时发送通知
+# 5. workflow_dispatch 允许从 GitHub 界面手动触发工作流
