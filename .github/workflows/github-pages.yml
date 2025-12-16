@@ -13,6 +13,12 @@ jobs:
   deploy:
     # 使用 Ubuntu 最新版本运行器
     runs-on: ubuntu-latest
+    # 设置工作流权限
+    permissions:
+      contents: write
+    # 避免重复部署
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
     
     # 步骤定义
     steps:
