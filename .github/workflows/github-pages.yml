@@ -72,9 +72,20 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: 'GitHub Pages 部署成功！可以通过 https://${{ github.repository_owner }}.github.io/${{ github.repository }}/ 访问'
-            })
+            try {
+              // 只有当存在issue上下文时才发送通知
+              if (context.issue && context.issue.number) {
+                await github.rest.issues.createComment({
+                  issue_number: context.issue.number,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  body: 'GitHub Pages 部署成功！可以通过 https://${{ github.repository_owner }}.github.io/${{ github.repository }}/ 访问'
+                });
+                console.log('部署通知已发送');
+              } else {
+                console.log('无issue上下文，跳过通知发送');
+              }
+            } catch (error) {
+              console.log('发送部署通知失败:', error.message);
+              // 不抛出错误，继续执行
+            }
