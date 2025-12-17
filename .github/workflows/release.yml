@@ -11,6 +11,9 @@ jobs:
   release:
     # 运行环境
     runs-on: ubuntu-latest
+    # 权限设置
+    permissions:
+      contents: write
     
     steps:
       # 检出代码
@@ -37,14 +40,19 @@ jobs:
         run: npm run build
         working-directory: ./frontend
       
-      # 创建 Release
-      - name: Create Release
-        uses: actions/create-release@v1
+      # 压缩构建产物
+      - name: Compress build artifacts
+        run: zip -r dist.zip dist
+        working-directory: ./frontend
+      
+      # 创建 Release 并上传产物
+      - name: Create Release and Upload Assets
+        uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
+          name: Release ${{ github.ref }}
           body: |
             自动生成的 Release
             - 版本：${{ github.ref }}
@@ -52,14 +60,4 @@ jobs:
             - 发布时间：${{ github.event.head_commit.timestamp }}
           draft: false
           prerelease: false
-      
-      # 上传构建产物到 Release
-      - name: Upload Build Artifacts
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./frontend/dist.zip
-          asset_name: github-actions-project-${{ github.ref_name }}.zip
-          asset_content_type: application/zip
+          files: ./frontend/dist.zip
